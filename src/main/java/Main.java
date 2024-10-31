@@ -2,6 +2,7 @@ import com.google.gson.Gson;
 import com.dampcake.bencode.Bencode;
 import com.dampcake.bencode.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 public class Main {
   private static final Gson gson = new Gson();
@@ -13,13 +14,7 @@ public class Main {
        String bencodedValue = args[1];
        try {
         Object result = decode(bencodedValue);
-        if (result instanceof String) {
-          System.out.println(gson.toJson((String) result));
-        } else if (result instanceof Long) {
-          System.out.println(gson.toJson((Long) result));
-        } else if (result instanceof Object) {
-          System.out.println(gson.toJson(result));
-        }
+        System.out.println(gson.toJson(result));
        } catch (Exception e) {
         System.out.println("Invalid bencoded value: " + bencodedValue);
        }
@@ -38,6 +33,8 @@ public class Main {
       return (T) decodeInteger(bencodedString);
     } else if (bencodedString.startsWith("l")) {
       return (T) decodeList(bencodedString);
+    } else if (bencodedString.startsWith("d")) {
+      return (T) decodeDict(bencodedString);
     }
     throw new IllegalArgumentException("Invalid bencoded format.");
   }
@@ -56,6 +53,12 @@ public class Main {
   public static Object decodeList(String bencodedString) {
     Bencode bencode = new Bencode();
     Object decode = bencode.decode(bencodedString.getBytes(StandardCharsets.UTF_8),Type.LIST);
+    return decode;
+  }
+  // Using benoce library for dictionaries
+  public static Object decodeDict(String bencodedString) {
+    Bencode bencode = new Bencode();
+    Map<String, Object> decode = bencode.decode(bencodedString.getBytes(StandardCharsets.UTF_8),Type.DICTIONARY);
     return decode;
   }
 }
